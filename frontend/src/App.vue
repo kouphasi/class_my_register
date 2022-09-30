@@ -1,11 +1,22 @@
 <template>
-  <nav>
+  <HeaderVue />
+  <!-- <nav>
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  </nav> -->
+  <router-view />
 </template>
 
+<script>
+// import HeaderVue from "@/components/HeaderVue.vue"
+import HeaderVue from "./components/HeaderVue.vue"
+export default {
+  components: {
+    // HeaderVue,
+    HeaderVue
+  }
+}
+</script>
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
