@@ -1,12 +1,22 @@
 <template>
     <div>
         <h1>教室申請アプリ</h1>
-        <el-input type="text" name="" id="" v-model="user_id" />
-        <el-input type="password" name="" id="" v-model="user_pass" />
-        <div class="warn" v-if="wrong">IDまたはパスワードが間違えています</div>
-        <div class="warn" v-if="have_error">エラーが発生しました、管理者にお問い合わせください</div>
-        <div>{{ error_content }}</div>
-        <el-button v-on:click="login">ログイン</el-button>
+        <div class="set">
+            <div>ID</div>
+            <el-input type="text" name="" id="form" class="form" v-model="user_id" />
+        </div>
+        <div class="set">
+            <div>パスワード</div>
+            <el-input v-model="user_pass" type="password" placeholder="Please input password" show-password />
+        </div>
+        <br>
+        <div class="set">
+            <el-alert v-if="wrong" title="*IDまたはパスワードが間違えています" type="warning" />
+            <el-alert v-if="have_error" title="*エラーが発生しました、管理者にお問い合わせください" type="error" />
+        </div>
+        <!-- <div class="warn" v-if="have_error">*エラーが発生しました、管理者にお問い合わせください</div> -->
+        <!-- <div>{{ error_content }}</div> -->
+        <el-button type="primary" plain v-on:click="login">ログイン</el-button>
         <!-- <button v-on:click="change_page">ページ遷移</button>
         <button v-on:click="check">ページ遷移</button> -->
     </div>
@@ -36,7 +46,7 @@ export default {
                 this.have_error = true
             }
             if (response.check) {
-                console.log("before push")
+                // console.log("before push")
                 try {
                     this.$router.push({ path: "/main" })
                 } catch (e) {
@@ -57,3 +67,12 @@ export default {
 
 }
 </script>
+<style>
+.warn {
+    color: red;
+}
+
+.form {
+    width: 50%;
+}
+</style>

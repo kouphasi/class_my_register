@@ -10,7 +10,7 @@
     display: flex;
     font-weight: 1000;
     color: rgb(50, 224, 255);
-    font-size: 3em;
+    font-size: 250%;
     background-color: transparent;
 }
 

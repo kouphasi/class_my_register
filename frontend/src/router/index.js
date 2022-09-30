@@ -4,7 +4,7 @@ import Form from "../views/FormVue.vue"
 
 const routes = [
   {
-    path: '/a',
+    path: '/',
     name: 'Login',
     component: LoginView
   },
@@ -17,7 +17,7 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   },
   {
-    path: "/",
+    path: "/main",
     name: "Main",
     component: Form
   }
