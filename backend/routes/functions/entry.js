@@ -63,7 +63,10 @@ const doIt = async function(club, schedule_set){
         }
     } catch (e) {
         console.log(e)
-        let comment = e
+        return {
+            access: false,
+            error: e
+        }
     } finally {
         await browser.close();
         
