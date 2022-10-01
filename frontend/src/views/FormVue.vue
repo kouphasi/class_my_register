@@ -5,11 +5,13 @@
         <div class="set">
             <div class="question">団体名(正式名称)</div>
             <el-input v-model="input_circle" class="input" placeholder="サークル名" />
+            <!-- <el-alert v-if="!check_club1.flag" v-bind:title="check_club1.comment" type="error" /> -->
         </div>
         <br>
         <div class="set">
             <div class="question">名前</div>
             <el-input v-model="input_name" class="input" placeholder="上智  太郎" />
+            <!-- <el-alert v-if="!check_name1.flag" v-bind:title="check_name1.comment" type="error" /> -->
         </div>
         <br>
         <div class="set">
@@ -85,6 +87,7 @@
                                         <el-input v-model="details.input_class" class="input" placeholder="教室名" />
                                     </div>
                                 </div>
+
                             </li>
                             <li>
                                 <div class="days details">
@@ -94,19 +97,24 @@
                                     </div>
                                 </div>
                             </li>
+                            <el-alert class="error"
+                                v-if="!check_time(details.input_start_time,details.input_end_time)+!check_class(details.input_class).flag"
+                                v-bind:title="check_class(details.input_class).comment" type="error" />
                         </ul>
                     </div>
                 </div>
             </div>
             <div class="buttons">
-                <el-button type="success" v-on:click="add_simple_dates" round>add</el-button>
-                <el-button v-on:click="add_copied_dates" round>copy</el-button>
-                <el-button type="danger" v-on:click="delete_days" round>delete</el-button>
+                <el-button type="success" v-on:click="add_simple_dates" v-bind:disabled="!entrying" round>add
+                </el-button>
+                <el-button v-on:click="add_copied_dates" v-bind:disabled="!entrying" round>copy</el-button>
+                <el-button type="danger" v-on:click="delete_days" v-bind:disabled="!entrying" round>delete</el-button>
             </div>
         </div>
         <br>
-        <el-button type="primary" v-on:click="execute">実行</el-button>
-        <!-- <el-button type="primary" v-on:click="change_page">change page</el-button> -->
+        <el-button v-if="entrying" type="primary" v-on:click="execute">実行</el-button>
+        <el-button v-else type="primary" :loading-icon="Eleme" loading>実行中</el-button>
+        <!-- <el-button type="primary" v-on:click="check_club">change page</el-button> -->
     </div>
 </template>
 <script>
@@ -114,6 +122,20 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 // import router from '../router'
 // import { useRouter } from "vue-router"
 // const router = useRouter()
+import { entry } from '@/functions/req'
+const reg_exp = {//正規表現とエラーメッセージ
+    "CLUB_NAME": [".*", ""],
+    "REPRESENT_NAME": [".+　.+", "＊姓と名の間に全角スペースを入れてください"],
+    "STUDENT_NUMBER": ["^[ABCDE][0-9]{7}$", "＊学生番号を半角で正しく入力してください"],
+    "MAIL": [".+@.+", "＊メールアドレスを正しく入力してください"],
+    "TEL": [/^0\d{2,3}-\d{1,4}-\d{4}$/, "＊電話番号(ハイフンあり)を半角で正しく入力してください"],
+    "FORM_URL": [/https?:\/\/[\w!?/+\-_~;.,*&@#$%()'[\]]+/, "＊URLを正しく入力してください"],
+    "YEAR": ["^[0-9]{4}$", "＊年を半角数字で入力してください(ex:2022年なら「2022」)"],
+    "MONTH": ["^[1-9]|1[0-2]$", "＊月を半角数字で入力してください(ex:6月なら「6」)"],
+    "DAY": ["^[1-9]|[1-2][0-9]|3[0-1]$", "＊注意事項に従い、正しく入力してください"],
+    "CLASS_ROOM": [/^(1|11|14|k)-/, "＊注意事項に従い、正しく入力してください"],
+    "TIME": ["^([0-9]|1[0-9]|2[0-3]):[0-5][0-9]$", "＊注意事項に従い、時間を正しく入力してください"]
+}
 export default {
     data() {
         return {
@@ -133,6 +155,8 @@ export default {
                 input_end_time: "",
                 input_comment: "",
             }],
+            entrying: true,
+            error_content: false
         }
     },
     methods: {
@@ -199,12 +223,64 @@ export default {
                     })
             }
         },
-        change_page() {
-            this.$router.push({ path: "/login" })
+        async change_page() {
+            return 1 + 1
+        },
+        form_check(value, key) {
+            let flg = true;
+            let regex = new RegExp(reg_exp[key][0]);
+            let comment = ""
+            if (value === "") {//空白チェック
+                comment = "＊入力必須項目です";
+                flg *= false;
+            } else {//ここの情報チェック
+                if (regex.test(value)) {//個別の入力書式確認
+                    comment = "";
+                    flg *= true;
+                } else {//マッチしていなければ
+                    comment = `${reg_exp[key][1]}`;
+                    flg *= false;
+                }
+            }
+            const obj = {
+                flag: flg,
+                comment: comment
+            }
+            return obj
+        },
+        form_check1(value, key) {
+            let flg = true;
+            let regex = new RegExp(reg_exp[key][0]);
+            let comment = ""
+
+            if (regex.test(value)) {//個別の入力書式確認
+                comment = "";
+                flg *= true;
+            } else {//マッチしていなければ
+                comment = `${reg_exp[key][1]}`;
+                flg *= false;
+            }
+
+            const obj = {
+                flag: flg,
+                comment: comment
+            }
+            return obj
         },
 
-        execute() {
-            let obj = {
+        async execute() {
+            this.entrying = false
+            let dates = []
+            for (let i = 0; i < this.input_details.length; i++) {
+                const sche = {
+                    "DAY": this.input_details[i].input_day,
+                    "CLASS_ROOM": this.input_details[i].input_class,
+                    "TIME": this.input_details[i].input_start_time + "~" + this.input_details[i].input_end_time,
+                    "NOTICES": this.input_details[i].input_comment,
+                }
+                dates.push(sche)
+            }
+            const obj = {
                 club_data: {
                     "TEXT": {
                         "CLUB_NAME": this.input_circle,
@@ -212,31 +288,100 @@ export default {
                         "STUDENT_NUMBER": this.input_id,
                         "MAIL": this.input_mail,
                         "TEL": this.input_phone,
-                    },
-                    schedule: {
-                        "FORM": this.input_url,
-                        "YEAR": String(this.input_year),
-                        "MONTH": String(this.input_months),
-                        "SCHEDULE": []
                     }
+                },
+                schedule: {
+                    "FORM_URL": this.input_url,
+                    "YEAR": String(this.input_year),
+                    "MONTH": String(this.input_months),
+                    "SCHEDULE": dates
                 }
+            }
 
-            }
-            let dates = []
-            for (let i = 0; i < this.input_details.length; i++) {
-                const sche = {
-                    "DAY": this.input_details[i].input_day,
-                    "CLASS_ROOM": this.input_details[i].input_class,
-                    "TIME": this.input_start_time + "~" + this.input_end_time,
-                    "NOTICES": this.input_comment,
-                }
-                dates.push(sche)
-            }
-            obj = { ...obj, dates }
+
             console.log(obj)
-            this.$router.push({ path: "/execute", params: { obj: obj } })
+            const response = await entry(obj)
+            this.error_content = response
+            this.entrying = true
+            if (response.error) {
+                ElMessage({
+                    message: 'Warning: エラーが発生しました',
+                    type: 'warning',
+                })
+            } else {
+                ElMessage({
+                    showClose: true,
+                    message: '完了しました',
+                    type: 'success',
+                })
+            }
         },
+        // check_club() {
+        //     const check = this.form_check(this.input_circle, "CLUB_NAME")
+        //     // const check = this.change_page()
+        //     return check
+        // }
     },
+    computed: {
+        check_club() {
+            const check = this.form_check(this.input_circle, "CLUB_NAME")
+            // const check = this.change_page()
+            return check
+        },
+        check_club1() {
+            const check = this.form_check1(this.input_circle, "CLUB_NAME")
+            // const check = this.change_page()
+            return check
+        },
+        check_name() {
+            const check = this.form_check(this.input_circle, "REPRESENT_NAME")
+            // const check = this.change_page()
+            return check
+        },
+        check_name1() {
+            const check = this.form_check1(this.input_circle, "REPRESENT_NAME")
+            // const check = this.change_page()
+            return check
+        },
+        check_id() {
+            const check = this.form_check(this.input_circle, "STUDENT_NUMBER")
+            // const check = this.change_page()
+            return check
+        },
+        check_mail() {
+            const check = this.form_check(this.input_circle, "MAIL")
+            // const check = this.change_page()
+            return check
+        },
+        check_phone() {
+            const check = this.form_check(this.input_circle, "TEL")
+            // const check = this.change_page()
+            return check
+        },
+        check_url() {
+            const check = this.form_check(this.input_circle, "FORM_URL")
+            // const check = this.change_page()
+            return check
+        },
+        check_class() {
+            return (inputs) => {
+                const check = this.form_check(inputs, "CLASS_ROOM")
+                console.log(inputs)
+                return check
+            }
+        },
+        check_time() {
+            return (inputs1, inputs2) => {
+                const check1 = this.form_check(inputs1, "TIME")
+                const check2 = this.form_check(inputs2, "TIME")
+                const check = {
+                    flag: check1.flag * check2.flag,
+                    message: check1.message
+                }
+                return check
+            }
+        },
+    }
 }
 </script>
 <style>

@@ -2,7 +2,7 @@
     <div>
         <el-steps :active="active" align-center>
             <el-step title="Step 1" description="開始" />
-            <el-step title="Step 2" description="実行中" />
+            <el-step title="Step 2" v-bind:description="message" />
             <el-step title="Step 3" description="終了" />
             <!-- <el-step title="Step 4" description="Some description" /> -->
         </el-steps>
@@ -21,6 +21,7 @@ export default {
         return {
             active: 1,
             // Eleme
+            message: "hello"
         }
     },
     methods: {
