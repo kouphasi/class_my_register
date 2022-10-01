@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginVue.vue'
 import Form from "../views/FormVue.vue"
+import Execute from "../views/ExecuteVue.vue"
+
 
 const routes = [
   {
@@ -8,6 +10,16 @@ const routes = [
     name: 'Login',
     component: LoginView
   },
+  // {
+  //   path: '/login',
+  //   name: 'Login1',
+  //   component: LoginView
+  // },
+  // {
+  //   path: '/main/login',
+  //   name: 'Login2',
+  //   component: LoginView
+  // },
   {
     path: '/about',
     name: 'about',
@@ -20,7 +32,14 @@ const routes = [
     path: "/main",
     name: "Main",
     component: Form
-  }
+  },
+  {
+    path: "/execute",
+    name: "Execute",
+    component: Execute,
+    props: true
+  },
+
 ]
 
 const router = createRouter({

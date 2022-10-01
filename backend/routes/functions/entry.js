@@ -2,8 +2,8 @@ const puppeteer = require('puppeteer');
 // const club = require(__dirname + "/../setting_data/club_data.json");
 // const schedule_set = require(__dirname + "/../setting_data/schedule.json");
 
-const post = async function(club, schedule_set){
-    const firm = data = require(__dirname + "/../setting_data/_firm_data.json");
+const doIt = async function(club, schedule_set){
+    const firm = data = require(__dirname + "/_firm_data.json");
     const browser = await puppeteer.launch(firm.OPTION);
     const page = await browser.newPage();
     await page.setExtraHTTPHeaders({
@@ -25,6 +25,7 @@ const post = async function(club, schedule_set){
             let time = await schedule.TIME;
 
             await action.page_goto(schedule_set.FORM_URL); //申請フォームへ遷移
+            const access = true;
             console.log('フォームアクセス成功')
             await page.waitForTimeout(2000); //2秒待つ
 
@@ -50,20 +51,26 @@ const post = async function(club, schedule_set){
             await action.xpath_type(xpath.NOTICES, schedule.NOTICES); //特記事項入力
             await action.xpath_type(xpath.MAIL, text.MAIL); //メールアドレス入力
             await action.xpath_type(xpath.TEL, text.TEL); //電話番号入力
+            let comment = (`・日付: ${date}, 時刻: ${time}, 利用施設: ${class_room_name}`)
+            console.log(comment)
 
-            console.log(`・日付: ${date}, 時刻: ${time}, 利用施設: ${class_room_name}`)
-
-            await Promise.all([
-                page.waitForXPath('//span[contains(text(), "ありがとうございます")]'), //送信完了を確認するまで待つ
-                action.xpath_click(xpath.SUBMIT) //フォームを送信する
-            ])
-
+            // await Promise.all([
+            //     page.waitForXPath('//span[contains(text(), "ありがとうございます")]'), //送信完了を確認するまで待つ
+            //     action.xpath_click(xpath.SUBMIT) //フォームを送信する
+            // ])
+            const success = true
             console.log('フォーム送信成功')
         }
     } catch (e) {
         console.log(e)
+        let comment = e
     } finally {
         await browser.close();
+        
+        return {
+            access:true
+        }
     }
 
 };
+module.exports.doIt = doIt

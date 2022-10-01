@@ -1,20 +1,16 @@
 const express = require("express")
 const router = express.Router()
+const doIt = require("./functions/entry.js")
+router.post('/', async function(req, res, next) {
+    // const getid_pass = {id: req.body.id, pass: req.body.pass}
 
-router.post('/', function(req, res, next) {
-    const setid_pass = {id: "sophiaess", pass: "hello"}
-    const getid_pass = {id: req.body.id, pass: req.body.pass}
+    const club = await req.body.club_data
+    const schedule_set = await req.body.schedule
 
-    const id_check = (setid_pass.id === getid_pass.id)?1:0
-    const pass_check = (setid_pass.pass === getid_pass.pass)?1:0
-    const check = (id_check+pass_check>1)?1:0
-    const param = {
-        check,
-        id_check,
-        pass_check
-    }
-    res.header('Content-Type', 'application/json; charset=utf-8')
-    res.send(param);
+    const param = await doIt.doIt(club, schedule_set)
+    // const param = [club, schedule_set]
+    await res.header('Content-Type', 'application/json; charset=utf-8')
+    await res.send(param);
   });
   
   module.exports = router;

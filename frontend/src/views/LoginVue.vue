@@ -7,7 +7,8 @@
         </div>
         <div class="set">
             <div>パスワード</div>
-            <el-input v-model="user_pass" type="password" placeholder="Please input password" show-password />
+            <el-input v-model="user_pass" type="password" class="form" placeholder="Please input password"
+                show-password />
         </div>
         <br>
         <div class="set">
@@ -17,7 +18,8 @@
         <!-- <div class="warn" v-if="have_error">*エラーが発生しました、管理者にお問い合わせください</div> -->
         <!-- <div>{{ error_content }}</div> -->
         <el-button type="primary" plain v-on:click="login">ログイン</el-button>
-        <!-- <button v-on:click="change_page">ページ遷移</button>
+        <!-- <el-button type="primary" plain v-on:click="change_page">ページ遷移</el-button>
+        <button v-on:click="change_page">ページ遷移</button>
         <button v-on:click="check">ページ遷移</button> -->
     </div>
 </template>

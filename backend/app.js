@@ -43,6 +43,7 @@ app.use("/api/logincheck", loginRouter)
 app.get('/api/message', (req, res) => {
 	res.send('get message')
 })
+app.use("/api/apis", apis)
 // catch 404 and forward to error handler
 // app.use(function(req, res, next) {
 //   next(createError(404));

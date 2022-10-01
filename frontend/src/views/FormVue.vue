@@ -105,11 +105,15 @@
             </div>
         </div>
         <br>
-        <el-button type="primary" v-on:click="delete_name">実行</el-button>
+        <el-button type="primary" v-on:click="execute">実行</el-button>
+        <!-- <el-button type="primary" v-on:click="change_page">change page</el-button> -->
     </div>
 </template>
 <script>
 import { ElMessage, ElMessageBox } from 'element-plus'
+// import router from '../router'
+// import { useRouter } from "vue-router"
+// const router = useRouter()
 export default {
     data() {
         return {
@@ -195,9 +199,12 @@ export default {
                     })
             }
         },
+        change_page() {
+            this.$router.push({ path: "/login" })
+        },
 
         execute() {
-            const obj = {
+            let obj = {
                 club_data: {
                     "TEXT": {
                         "CLUB_NAME": this.input_circle,
@@ -207,6 +214,7 @@ export default {
                         "TEL": this.input_phone,
                     },
                     schedule: {
+                        "FORM": this.input_url,
                         "YEAR": String(this.input_year),
                         "MONTH": String(this.input_months),
                         "SCHEDULE": []
@@ -214,6 +222,7 @@ export default {
                 }
 
             }
+            let dates = []
             for (let i = 0; i < this.input_details.length; i++) {
                 const sche = {
                     "DAY": this.input_details[i].input_day,
@@ -221,9 +230,11 @@ export default {
                     "TIME": this.input_start_time + "~" + this.input_end_time,
                     "NOTICES": this.input_comment,
                 }
-                obj.schedule.SCHEDULE.push(sche)
+                dates.push(sche)
             }
-            // this.$router.push({ path: '/execute', params: obj })
+            obj = { ...obj, dates }
+            console.log(obj)
+            this.$router.push({ path: "/execute", params: { obj: obj } })
         },
     },
 }
